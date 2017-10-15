@@ -17,3 +17,4 @@ vignettes/*.pdf
 # Because they are too big
 *.csv
 *.xlsx
+.Rproj.user
