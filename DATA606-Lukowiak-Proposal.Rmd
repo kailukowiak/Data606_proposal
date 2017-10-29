@@ -1,0 +1,147 @@
+---
+title: "DATA 606 Data Project Proposal"
+author: "Kai Lukowiak"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Data Preparation
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(ggplot2)
+library(ggthemes)
+library(tibble)
+library(knitr)
+library(corrr)
+```
+
+```{r  loading, cache=TRUE,  message=FALSE, warning=FALSE}
+test <- as.tibble(fread("/Users/kailukowiak/Data606_Proposal/test.csv", na.strings = c("-1","-1.0")))
+train <- as.tibble(fread("/Users/kailukowiak/Data606_Proposal/train.csv", na.strings = c("-1","-1.0")))
+head(test) 
+head(train)
+```
+
+```{r}
+glimpse(train)
+```
+
+
+### Research question 
+
+**You should phrase your research question in a way that matches up with the scope of inference your dataset allows for.**
+
+**Can simple statistical and ML models predict accidents better than baisic markers like age adgusted rates or the base line rate?**
+
+
+### Cases 
+
+**What are the cases, and how many are there?**
+
+The cases are individual people who bought insurance.
+
+```{r}
+x = nrow(train) + nrow(test)
+```
+
+There are: `r x` cases.
+
+### Data collection
+
+**Describe the method of data collection.**
+
+Data collection was easy since the data sets were posted on kaggle.
+Files can be downloaded here: https://www.kaggle.com/c/porto-seguro-safe-driver-prediction/data
+
+### Type of study 
+
+**What type of study is this (observational/experiment)?**
+
+This is an observational study based on insurance claims and people's attributes. 
+
+### Data Source 
+
+**If you collected the data, state self-collected. If not, provide a citation/link.**
+
+https://www.kaggle.com/c/porto-seguro-safe-driver-prediction/data
+
+
+### Response 
+
+**What is the response variable, and what type is it (numerical/categorical)?**
+
+The response variable in categorical because it takes on a value of zero and 1 if there was a claim.
+
+### Explanatory 
+
+**What is the explanatory variable, and what type is it (numerical/categorival)?**
+
+There are a mix of numeric and categorical variables (nothing logistic regression / random forrests can't handle)
+
+### Relevant summary statistics 
+
+**Provide summary statistics relevant to your research question. For example, if you’re comparing means across groups provide means, SDs, sample sizes of each group. This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
+
+```{r}
+y = 1
+```
+
+There are a lot of NAs.
+```{r}
+train %>% 
+  select(target) %>% 
+  group_by(target) %>% 
+  summarise(n = n()) %>% 
+  ggplot( aes(x = target, y = n))+
+  geom_bar(stat = 'identity', fill = 'light blue') +
+  ggtitle("Count of Claims vs No Claims") +
+  xlab('Claim or No Claim') + 
+  ylab('Count')
+  
+```
+
+```{r}
+naVals <- test %>%  
+  select(which(colMeans(is.na(.)) > 0)) %>% 
+  summarise_all(funs(sum(is.na(.))/n())) %>%
+  gather(key = "Variable", value = "missingPercent")
+
+```
+
+
+```{r}
+ggplot(naVals, aes(x = reorder( Variable, missingPercent), y = missingPercent)) +
+  geom_bar(stat = "identity", fill = 'light blue') +
+  ylim(0,1) +
+  ggtitle("Percentage of Non- Missing Values") +
+  coord_flip() 
+```
+
+We can see that most of ```ps_car_03_cat``` and ```ps_car_05_cat``` is missing. Other than that, most variables contain few if any NAs.
+
+```{r}
+corrDF <- train %>% 
+  correlate() %>% 
+  focus(target)
+```
+
+```{r fig.height=9, fig.width=7}
+ggplot(corrDF, aes(x =reorder(rowname, abs(target)), y = target)) + 
+  geom_bar(stat = 'identity', fill = 'light blue') +
+  coord_flip()+
+  ylab('Variable')+
+  xlab('Correlation with Target')+
+  ggtitle('Correlation of the Dependant Variable with all Other Variables')
+```
+
+
+Because the correlation values are so low, we will probably have to equalize the success and failure rates so that success doesn't dominate the results. 
