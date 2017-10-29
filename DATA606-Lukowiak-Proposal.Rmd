@@ -2,7 +2,6 @@
 title: "DATA 606 Data Project Proposal"
 author: "Kai Lukowiak"
 output: html_document
-bibliography: bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -12,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Data Preparation
 
-```{r libraries}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(tidyr)
 library(data.table)
@@ -20,7 +19,7 @@ library(ggplot2)
 library(ggthemes)
 ```
 
-```{r  loading, cache=TRUE}
+```{r  loading, cache=TRUE,  message=FALSE, warning=FALSE}
 train <- fread("/Users/kailukowiak/Data606_Proposal/Zillow/train_2016.csv")
 properties <- fread("/Users/kailukowiak/Data606_Proposal/Zillow/properties_2016.csv")
 ```
@@ -104,10 +103,6 @@ naVals %>%
   coord_flip() +
   theme_economist()
 
-
-```
-
-```{r}
 
 ```
 

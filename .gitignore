@@ -18,3 +18,5 @@ vignettes/*.pdf
 *.csv
 *.xlsx
 .Rproj.user
+*.7z
+rsconnect/
